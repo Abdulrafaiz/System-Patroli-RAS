@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)file:///C:/Users/LENOVO/Downloads/patroli-security.html -->
+<html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patroli Security</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --text: #1a1d23;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --accent: #1d4ed8;
+    --accent-text: #ffffff;
+    --danger: #dc2626;
+    --success: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px;
+  }
+  header h1 { margin: 0 0 10px 0; font-size: 17px; }
+  .tabs { display: flex; gap: 8px; }
+  .tab {
+    flex: 1; padding: 9px 10px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    font-size: 14px; text-align: center; cursor: pointer;
+  }
+  .tab.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  main { max-width: 620px; margin: 0 auto; padding: 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 12px 0; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input[type="text"], textarea, select {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 15px; margin-bottom: 12px; font-family: inherit;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  button { font-family: inherit; cursor: pointer; }
+  button.primary {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: var(--accent); color: var(--accent-text); font-size: 14px; font-weight: 600;
+  }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+  button.secondary {
+    padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--text); font-size: 13px;
+  }
+  button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; margin-bottom: 0; }
+  .loc-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .loc-item:last-child { border-bottom: none; }
+  .loc-name { font-size: 14px; }
+  .empty { text-align: center; color: var(--muted); padding: 24px 10px; font-size: 14px; }
+
+  .patrol-loc {
+    border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px;
+  }
+  .patrol-loc.done { border-color: var(--success); background: rgba(22,163,74,0.06); }
+  .patrol-loc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .patrol-loc-head .name { font-size: 15px; font-weight: 600; }
+  .badge { font-size: 12px; padding: 3px 9px; border-radius: 20px; }
+  .badge.pending { background: #fef3c7; color: #92400e; }
+  .badge.done { background: rgba(22,163,74,0.15); color: var(--success); }
+  .photo-box {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 10px;
+  }
+  .photo-box img { max-width: 100%; max-height: 220px; border-radius: 8px; display: block; margin: 0 auto; }
+  .photo-btn {
+    display: inline-block; padding: 9px 14px; border-radius: 10px;
+    background: var(--accent); color: var(--accent-text); font-size: 13px; cursor: pointer;
+  }
+  input[type="file"] { display: none; }
+  .msg { font-size: 13px; padding: 9px 11px; border-radius: 10px; margin-bottom: 10px; }
+  .msg.success { background: rgba(22,163,74,0.12); color: var(--success); }
+  .msg.error { background: rgba(220,38,38,0.12); color: var(--danger); }
+
+  .report { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .report:last-child { border-bottom: none; }
+  .report img { width: 76px; height: 76px; object-fit: cover; border-radius: 10px; flex-shrink: 0; cursor: pointer; }
+  .report .meta { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .report .loc { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .report .note { font-size: 13px; word-break: break-word; }
+  .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filters select { margin-bottom: 0; flex: 1; min-width: 120px; }
+
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 50; align-items: center; justify-content: center; padding: 20px;
+  }
+  .overlay.open { display: flex; }
+  .overlay img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛡️ Patroli Security</h1>
+  <div class="tabs">
+    <div class="tab active" id="tabGuard" onclick="setRole(&#39;guard&#39;)">Petugas Patroli</div>
+    <div class="tab" id="tabAdmin" onclick="setRole(&#39;admin&#39;)">Admin</div>
+  </div>
+</header>
+
+<main>
+  <!-- ================= PETUGAS ================= -->
+  <div id="guardView" style="display: block;">
+    <div class="card">
+      <label>Nama Petugas</label>
+      <input type="text" id="guardName" placeholder="Masukkan nama Anda" oninput="saveGuardName()">
+    </div>
+
+    <div class="card">
+      <h2>Checklist Lokasi Patroli</h2>
+      <div id="locationChecklist"><div class="patrol-loc " id="loc-loc_1790219995885"><div class="patrol-loc-head"><span class="name">📍 MR.12 GERBANG LOADING IMPORT</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790219995885"><label class="photo-btn" for="file-loc_1790219995885">📷 Ambil Foto</label><input type="file" id="file-loc_1790219995885" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790219995885&#39;, this)"></div><textarea id="note-loc_1790219995885" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790219995885"></div><button class="primary" id="submit-loc_1790219995885" onclick="submitLocation(&#39;loc_1790219995885&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220017093"><div class="patrol-loc-head"><span class="name">📍 MR.12 AREA GUDANG LOCAL</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220017093"><label class="photo-btn" for="file-loc_1790220017093">📷 Ambil Foto</label><input type="file" id="file-loc_1790220017093" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220017093&#39;, this)"></div><textarea id="note-loc_1790220017093" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220017093"></div><button class="primary" id="submit-loc_1790220017093" onclick="submitLocation(&#39;loc_1790220017093&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220033324"><div class="patrol-loc-head"><span class="name">📍 MR.12 AREA MESIN PENDINGIN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220033324"><label class="photo-btn" for="file-loc_1790220033324">📷 Ambil Foto</label><input type="file" id="file-loc_1790220033324" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220033324&#39;, this)"></div><textarea id="note-loc_1790220033324" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220033324"></div><button class="primary" id="submit-loc_1790220033324" onclick="submitLocation(&#39;loc_1790220033324&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220074234"><div class="patrol-loc-head"><span class="name">📍 MR.12 AREA LORONG TEKNISI</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220074234"><label class="photo-btn" for="file-loc_1790220074234">📷 Ambil Foto</label><input type="file" id="file-loc_1790220074234" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220074234&#39;, this)"></div><textarea id="note-loc_1790220074234" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220074234"></div><button class="primary" id="submit-loc_1790220074234" onclick="submitLocation(&#39;loc_1790220074234&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220102429"><div class="patrol-loc-head"><span class="name">📍 MR.12 TKBM IMPORT</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220102429"><label class="photo-btn" for="file-loc_1790220102429">📷 Ambil Foto</label><input type="file" id="file-loc_1790220102429" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220102429&#39;, this)"></div><textarea id="note-loc_1790220102429" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220102429"></div><button class="primary" id="submit-loc_1790220102429" onclick="submitLocation(&#39;loc_1790220102429&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220109172"><div class="patrol-loc-head"><span class="name">📍 MR.12 TKBM LOCAL</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220109172"><label class="photo-btn" for="file-loc_1790220109172">📷 Ambil Foto</label><input type="file" id="file-loc_1790220109172" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220109172&#39;, this)"></div><textarea id="note-loc_1790220109172" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220109172"></div><button class="primary" id="submit-loc_1790220109172" onclick="submitLocation(&#39;loc_1790220109172&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220137260"><div class="patrol-loc-head"><span class="name">📍 MR.12 ANTEROOM GUDANG IMPORT</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220137260"><label class="photo-btn" for="file-loc_1790220137260">📷 Ambil Foto</label><input type="file" id="file-loc_1790220137260" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220137260&#39;, this)"></div><textarea id="note-loc_1790220137260" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220137260"></div><button class="primary" id="submit-loc_1790220137260" onclick="submitLocation(&#39;loc_1790220137260&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220145245"><div class="patrol-loc-head"><span class="name">📍 MR.12 RUANG TUNGGU SUPIR</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220145245"><label class="photo-btn" for="file-loc_1790220145245">📷 Ambil Foto</label><input type="file" id="file-loc_1790220145245" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220145245&#39;, this)"></div><textarea id="note-loc_1790220145245" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220145245"></div><button class="primary" id="submit-loc_1790220145245" onclick="submitLocation(&#39;loc_1790220145245&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220182604"><div class="patrol-loc-head"><span class="name">📍 MR.12 LORONG TEMBOK PERBATASAN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220182604"><label class="photo-btn" for="file-loc_1790220182604">📷 Ambil Foto</label><input type="file" id="file-loc_1790220182604" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220182604&#39;, this)"></div><textarea id="note-loc_1790220182604" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220182604"></div><button class="primary" id="submit-loc_1790220182604" onclick="submitLocation(&#39;loc_1790220182604&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220197041"><div class="patrol-loc-head"><span class="name">📍 MR.20 GERBANG LUAR</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220197041"><label class="photo-btn" for="file-loc_1790220197041">📷 Ambil Foto</label><input type="file" id="file-loc_1790220197041" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220197041&#39;, this)"></div><textarea id="note-loc_1790220197041" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220197041"></div><button class="primary" id="submit-loc_1790220197041" onclick="submitLocation(&#39;loc_1790220197041&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220220640"><div class="patrol-loc-head"><span class="name">📍 MR.20 HALAMAN DEPAN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220220640"><label class="photo-btn" for="file-loc_1790220220640">📷 Ambil Foto</label><input type="file" id="file-loc_1790220220640" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220220640&#39;, this)"></div><textarea id="note-loc_1790220220640" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220220640"></div><button class="primary" id="submit-loc_1790220220640" onclick="submitLocation(&#39;loc_1790220220640&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220231813"><div class="patrol-loc-head"><span class="name">📍 MR.20 AREA DALAM GUDANG</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220231813"><label class="photo-btn" for="file-loc_1790220231813">📷 Ambil Foto</label><input type="file" id="file-loc_1790220231813" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220231813&#39;, this)"></div><textarea id="note-loc_1790220231813" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220231813"></div><button class="primary" id="submit-loc_1790220231813" onclick="submitLocation(&#39;loc_1790220231813&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220239081"><div class="patrol-loc-head"><span class="name">📍 MR.20 AREA DALAM OFFICE</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220239081"><label class="photo-btn" for="file-loc_1790220239081">📷 Ambil Foto</label><input type="file" id="file-loc_1790220239081" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220239081&#39;, this)"></div><textarea id="note-loc_1790220239081" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220239081"></div><button class="primary" id="submit-loc_1790220239081" onclick="submitLocation(&#39;loc_1790220239081&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220253332"><div class="patrol-loc-head"><span class="name">📍 MR.20 AREA TPS</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220253332"><label class="photo-btn" for="file-loc_1790220253332">📷 Ambil Foto</label><input type="file" id="file-loc_1790220253332" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220253332&#39;, this)"></div><textarea id="note-loc_1790220253332" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220253332"></div><button class="primary" id="submit-loc_1790220253332" onclick="submitLocation(&#39;loc_1790220253332&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220271301"><div class="patrol-loc-head"><span class="name">📍 MR.9 LORONG SAMPING</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220271301"><label class="photo-btn" for="file-loc_1790220271301">📷 Ambil Foto</label><input type="file" id="file-loc_1790220271301" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220271301&#39;, this)"></div><textarea id="note-loc_1790220271301" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220271301"></div><button class="primary" id="submit-loc_1790220271301" onclick="submitLocation(&#39;loc_1790220271301&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220289717"><div class="patrol-loc-head"><span class="name">📍 MR.9 LOADING DRY</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220289717"><label class="photo-btn" for="file-loc_1790220289717">📷 Ambil Foto</label><input type="file" id="file-loc_1790220289717" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220289717&#39;, this)"></div><textarea id="note-loc_1790220289717" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220289717"></div><button class="primary" id="submit-loc_1790220289717" onclick="submitLocation(&#39;loc_1790220289717&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220309677"><div class="patrol-loc-head"><span class="name">📍 MR.9 AREA TPS</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220309677"><label class="photo-btn" for="file-loc_1790220309677">📷 Ambil Foto</label><input type="file" id="file-loc_1790220309677" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220309677&#39;, this)"></div><textarea id="note-loc_1790220309677" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220309677"></div><button class="primary" id="submit-loc_1790220309677" onclick="submitLocation(&#39;loc_1790220309677&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220317717"><div class="patrol-loc-head"><span class="name">📍 MR.9 AREA TKBM</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220317717"><label class="photo-btn" for="file-loc_1790220317717">📷 Ambil Foto</label><input type="file" id="file-loc_1790220317717" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220317717&#39;, this)"></div><textarea id="note-loc_1790220317717" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220317717"></div><button class="primary" id="submit-loc_1790220317717" onclick="submitLocation(&#39;loc_1790220317717&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220370189"><div class="patrol-loc-head"><span class="name">📍 MR.9 LOADING SAMPING</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220370189"><label class="photo-btn" for="file-loc_1790220370189">📷 Ambil Foto</label><input type="file" id="file-loc_1790220370189" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220370189&#39;, this)"></div><textarea id="note-loc_1790220370189" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220370189"></div><button class="primary" id="submit-loc_1790220370189" onclick="submitLocation(&#39;loc_1790220370189&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220380949"><div class="patrol-loc-head"><span class="name">📍 MR.8 LOADING</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220380949"><label class="photo-btn" for="file-loc_1790220380949">📷 Ambil Foto</label><input type="file" id="file-loc_1790220380949" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220380949&#39;, this)"></div><textarea id="note-loc_1790220380949" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220380949"></div><button class="primary" id="submit-loc_1790220380949" onclick="submitLocation(&#39;loc_1790220380949&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220399108"><div class="patrol-loc-head"><span class="name">📍 MR.8 BELAKANG GENSET</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220399108"><label class="photo-btn" for="file-loc_1790220399108">📷 Ambil Foto</label><input type="file" id="file-loc_1790220399108" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220399108&#39;, this)"></div><textarea id="note-loc_1790220399108" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220399108"></div><button class="primary" id="submit-loc_1790220399108" onclick="submitLocation(&#39;loc_1790220399108&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220422204"><div class="patrol-loc-head"><span class="name">📍 MR.8 LINGKAR LUAR TEMBOK PERBATASAN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220422204"><label class="photo-btn" for="file-loc_1790220422204">📷 Ambil Foto</label><input type="file" id="file-loc_1790220422204" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220422204&#39;, this)"></div><textarea id="note-loc_1790220422204" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220422204"></div><button class="primary" id="submit-loc_1790220422204" onclick="submitLocation(&#39;loc_1790220422204&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220431620"><div class="patrol-loc-head"><span class="name">📍 MR.8 AREA PARKIR</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220431620"><label class="photo-btn" for="file-loc_1790220431620">📷 Ambil Foto</label><input type="file" id="file-loc_1790220431620" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220431620&#39;, this)"></div><textarea id="note-loc_1790220431620" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220431620"></div><button class="primary" id="submit-loc_1790220431620" onclick="submitLocation(&#39;loc_1790220431620&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220466192"><div class="patrol-loc-head"><span class="name">📍 MR.37 POS GERBANG DEPAN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220466192"><label class="photo-btn" for="file-loc_1790220466192">📷 Ambil Foto</label><input type="file" id="file-loc_1790220466192" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220466192&#39;, this)"></div><textarea id="note-loc_1790220466192" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220466192"></div><button class="primary" id="submit-loc_1790220466192" onclick="submitLocation(&#39;loc_1790220466192&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220473821"><div class="patrol-loc-head"><span class="name">📍 MR.37 BAWAH TANGGA</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220473821"><label class="photo-btn" for="file-loc_1790220473821">📷 Ambil Foto</label><input type="file" id="file-loc_1790220473821" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220473821&#39;, this)"></div><textarea id="note-loc_1790220473821" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220473821"></div><button class="primary" id="submit-loc_1790220473821" onclick="submitLocation(&#39;loc_1790220473821&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220480964"><div class="patrol-loc-head"><span class="name">📍 MR.37 AREA MEKANIK</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220480964"><label class="photo-btn" for="file-loc_1790220480964">📷 Ambil Foto</label><input type="file" id="file-loc_1790220480964" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220480964&#39;, this)"></div><textarea id="note-loc_1790220480964" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220480964"></div><button class="primary" id="submit-loc_1790220480964" onclick="submitLocation(&#39;loc_1790220480964&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220501888"><div class="patrol-loc-head"><span class="name">📍 MR.37 AREA PARKIR LT.1</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220501888"><label class="photo-btn" for="file-loc_1790220501888">📷 Ambil Foto</label><input type="file" id="file-loc_1790220501888" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220501888&#39;, this)"></div><textarea id="note-loc_1790220501888" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220501888"></div><button class="primary" id="submit-loc_1790220501888" onclick="submitLocation(&#39;loc_1790220501888&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220504628"><div class="patrol-loc-head"><span class="name">📍 MR.37 AREA PARKIR LT.2</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220504628"><label class="photo-btn" for="file-loc_1790220504628">📷 Ambil Foto</label><input type="file" id="file-loc_1790220504628" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220504628&#39;, this)"></div><textarea id="note-loc_1790220504628" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220504628"></div><button class="primary" id="submit-loc_1790220504628" onclick="submitLocation(&#39;loc_1790220504628&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220508636"><div class="patrol-loc-head"><span class="name">📍 MR.37 AREA PARKIR LT.3</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220508636"><label class="photo-btn" for="file-loc_1790220508636">📷 Ambil Foto</label><input type="file" id="file-loc_1790220508636" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220508636&#39;, this)"></div><textarea id="note-loc_1790220508636" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220508636"></div><button class="primary" id="submit-loc_1790220508636" onclick="submitLocation(&#39;loc_1790220508636&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220590531"><div class="patrol-loc-head"><span class="name">📍 MR.40 LOADING</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220590531"><label class="photo-btn" for="file-loc_1790220590531">📷 Ambil Foto</label><input type="file" id="file-loc_1790220590531" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220590531&#39;, this)"></div><textarea id="note-loc_1790220590531" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220590531"></div><button class="primary" id="submit-loc_1790220590531" onclick="submitLocation(&#39;loc_1790220590531&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220598712"><div class="patrol-loc-head"><span class="name">📍 MR.40 AREA TKBM</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220598712"><label class="photo-btn" for="file-loc_1790220598712">📷 Ambil Foto</label><input type="file" id="file-loc_1790220598712" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220598712&#39;, this)"></div><textarea id="note-loc_1790220598712" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220598712"></div><button class="primary" id="submit-loc_1790220598712" onclick="submitLocation(&#39;loc_1790220598712&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220609064"><div class="patrol-loc-head"><span class="name">📍 MR.40 AREA PARKIR</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220609064"><label class="photo-btn" for="file-loc_1790220609064">📷 Ambil Foto</label><input type="file" id="file-loc_1790220609064" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220609064&#39;, this)"></div><textarea id="note-loc_1790220609064" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220609064"></div><button class="primary" id="submit-loc_1790220609064" onclick="submitLocation(&#39;loc_1790220609064&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220620780"><div class="patrol-loc-head"><span class="name">📍 MR.40 AREA TOREN AIR</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220620780"><label class="photo-btn" for="file-loc_1790220620780">📷 Ambil Foto</label><input type="file" id="file-loc_1790220620780" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220620780&#39;, this)"></div><textarea id="note-loc_1790220620780" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220620780"></div><button class="primary" id="submit-loc_1790220620780" onclick="submitLocation(&#39;loc_1790220620780&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220630108"><div class="patrol-loc-head"><span class="name">📍 MR.40 AREA MESIN</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220630108"><label class="photo-btn" for="file-loc_1790220630108">📷 Ambil Foto</label><input type="file" id="file-loc_1790220630108" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220630108&#39;, this)"></div><textarea id="note-loc_1790220630108" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220630108"></div><button class="primary" id="submit-loc_1790220630108" onclick="submitLocation(&#39;loc_1790220630108&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div><div class="patrol-loc " id="loc-loc_1790220637199"><div class="patrol-loc-head"><span class="name">📍 MR.40 ANTEROOM</span><span class="badge pending">Belum</span></div><div class="photo-box" id="photobox-loc_1790220637199"><label class="photo-btn" for="file-loc_1790220637199">📷 Ambil Foto</label><input type="file" id="file-loc_1790220637199" accept="image/*" capture="environment" onchange="onPhotoSelected(&#39;loc_1790220637199&#39;, this)"></div><textarea id="note-loc_1790220637199" placeholder="Catatan (opsional)"></textarea><div id="msg-loc_1790220637199"></div><button class="primary" id="submit-loc_1790220637199" onclick="submitLocation(&#39;loc_1790220637199&#39;)" disabled="">Kirim Laporan Lokasi Ini</button></div></div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN ================= -->
+  <div id="adminView" style="display: none;">
+    <div class="card">
+      <h2>Kelola Lokasi Patroli</h2>
+      <div class="row" style="margin-bottom:12px;">
+        <input type="text" id="newLocationName" placeholder="Nama lokasi baru, mis. Lobby Lantai 1">
+        <button class="secondary" onclick="addLocation()">Tambah</button>
+      </div>
+      <div id="locationManageList"><div class="loc-item"><span class="loc-name">📍 MR.12 GERBANG LOADING IMPORT</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790219995885&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 AREA GUDANG LOCAL</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220017093&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 AREA MESIN PENDINGIN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220033324&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 AREA LORONG TEKNISI</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220074234&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 TKBM IMPORT</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220102429&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 TKBM LOCAL</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220109172&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 ANTEROOM GUDANG IMPORT</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220137260&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 RUANG TUNGGU SUPIR</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220145245&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.12 LORONG TEMBOK PERBATASAN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220182604&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.20 GERBANG LUAR</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220197041&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.20 HALAMAN DEPAN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220220640&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.20 AREA DALAM GUDANG</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220231813&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.20 AREA DALAM OFFICE</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220239081&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.20 AREA TPS</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220253332&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.9 LORONG SAMPING</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220271301&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.9 LOADING DRY</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220289717&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.9 AREA TPS</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220309677&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.9 AREA TKBM</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220317717&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.9 LOADING SAMPING</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220370189&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.8 LOADING</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220380949&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.8 BELAKANG GENSET</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220399108&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.8 LINGKAR LUAR TEMBOK PERBATASAN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220422204&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.8 AREA PARKIR</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220431620&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 POS GERBANG DEPAN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220466192&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 BAWAH TANGGA</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220473821&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 AREA MEKANIK</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220480964&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 AREA PARKIR LT.1</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220501888&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 AREA PARKIR LT.2</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220504628&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.37 AREA PARKIR LT.3</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220508636&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 LOADING</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220590531&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 AREA TKBM</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220598712&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 AREA PARKIR</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220609064&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 AREA TOREN AIR</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220620780&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 AREA MESIN</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220630108&#39;)">Hapus</button></div><div class="loc-item"><span class="loc-name">📍 MR.40 ANTEROOM</span><button class="secondary danger" onclick="removeLocation(&#39;loc_1790220637199&#39;)">Hapus</button></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Laporan Masuk</h2>
+      <div class="filters">
+        <select id="filterLocation" onchange="renderReports()"><option value="">Semua Lokasi</option></select>
+        <select id="filterGuard" onchange="renderReports()"><option value="">Semua Petugas</option></select>
+      </div>
+      <div id="reportList"><div class="empty">Belum ada laporan.</div></div>
+    </div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay" onclick="this.classList.remove(&#39;open&#39;)">
+  <img id="overlayImg" src="file:///C:/Users/LENOVO/Downloads/patroli-security.html">
+</div>
+
+<script>
+const LS_LOCATIONS = 'patroli_locations';
+const LS_REPORTS = 'patroli_reports';
+const LS_GUARD_NAME = 'patroli_guard_name';
+
+function loadLocations() {
+  try { return JSON.parse(localStorage.getItem(LS_LOCATIONS)) || []; }
+  catch (e) { return []; }
+}
+function saveLocations(list) {
+  try { localStorage.setItem(LS_LOCATIONS, JSON.stringify(list)); } catch (e) {}
+}
+function loadReports() {
+  try { return JSON.parse(localStorage.getItem(LS_REPORTS)) || []; }
+  catch (e) { return []; }
+}
+function saveReports(list) {
+  try { localStorage.setItem(LS_REPORTS, JSON.stringify(list)); }
+  catch (e) { alert('Penyimpanan penuh. Hapus beberapa laporan lama lalu coba lagi.'); }
+}
+
+// ---------- role switching ----------
+function setRole(role) {
+  document.getElementById('tabGuard').classList.toggle('active', role === 'guard');
+  document.getElementById('tabAdmin').classList.toggle('active', role === 'admin');
+  document.getElementById('guardView').style.display = role === 'guard' ? 'block' : 'none';
+  document.getElementById('adminView').style.display = role === 'admin' ? 'block' : 'none';
+  if (role === 'guard') renderChecklist();
+  if (role === 'admin') { renderLocationManageList(); renderFilters(); renderReports(); }
+}
+
+// ---------- admin: manage locations ----------
+function addLocation() {
+  const input = document.getElementById('newLocationName');
+  const name = input.value.trim();
+  if (!name) return;
+  const list = loadLocations();
+  list.push({ id: 'loc_' + Date.now(), name });
+  saveLocations(list);
+  input.value = '';
+  renderLocationManageList();
+}
+function removeLocation(id) {
+  if (!confirm('Hapus lokasi ini?')) return;
+  saveLocations(loadLocations().filter(l => l.id !== id));
+  renderLocationManageList();
+}
+function renderLocationManageList() {
+  const list = loadLocations();
+  const el = document.getElementById('locationManageList');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty">Belum ada lokasi. Tambahkan lokasi patroli di atas.</div>';
+    return;
+  }
+  el.innerHTML = list.map(l =>
+    '<div class="loc-item"><span class="loc-name">📍 ' + escapeHtml(l.name) + '</span>' +
+    '<button class="secondary danger" onclick="removeLocation(\'' + l.id + '\')">Hapus</button></div>'
+  ).join('');
+}
+
+// ---------- petugas: checklist ----------
+function saveGuardName() {
+  try { localStorage.setItem(LS_GUARD_NAME, document.getElementById('guardName').value); } catch (e) {}
+}
+function todayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+function renderChecklist() {
+  const locations = loadLocations();
+  const el = document.getElementById('locationChecklist');
+  if (locations.length === 0) {
+    el.innerHTML = '<div class="empty">Admin belum menambahkan lokasi patroli.</div>';
+    return;
+  }
+  const reports = loadReports();
+  const today = todayKey();
+  el.innerHTML = locations.map(loc => {
+    const done = reports.find(r => r.locationId === loc.id && r.dayKey === today);
+    return '<div class="patrol-loc ' + (done ? 'done' : '') + '" id="loc-' + loc.id + '">' +
+      '<div class="patrol-loc-head">' +
+        '<span class="name">📍 ' + escapeHtml(loc.name) + '</span>' +
+        '<span class="badge ' + (done ? 'done' : 'pending') + '">' + (done ? '✓ Selesai' : 'Belum') + '</span>' +
+      '</div>' +
+      (done ?
+        '<div style="font-size:13px;color:var(--muted);">Difoto pukul ' + new Date(done.timestamp).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) + '</div>' +
+        '<button class="secondary" style="margin-top:8px;" onclick="retakeLocation(\'' + loc.id + '\')">Foto Ulang</button>'
+      :
+        '<div class="photo-box" id="photobox-' + loc.id + '">' +
+          '<label class="photo-btn" for="file-' + loc.id + '">📷 Ambil Foto</label>' +
+          '<input type="file" id="file-' + loc.id + '" accept="image/*" capture="environment" onchange="onPhotoSelected(\'' + loc.id + '\', this)">' +
+        '</div>' +
+        '<textarea id="note-' + loc.id + '" placeholder="Catatan (opsional)"></textarea>' +
+        '<div id="msg-' + loc.id + '"></div>' +
+        '<button class="primary" id="submit-' + loc.id + '" onclick="submitLocation(\'' + loc.id + '\')" disabled>Kirim Laporan Lokasi Ini</button>'
+      ) +
+    '</div>';
+  }).join('');
+}
+function retakeLocation(locId) {
+  const today = todayKey();
+  let reports = loadReports();
+  reports = reports.filter(r => !(r.locationId === locId && r.dayKey === today));
+  saveReports(reports);
+  renderChecklist();
+}
+
+let pendingPhotos = {}; // locId -> dataURL
+
+function onPhotoSelected(locId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  resizeImageWithTimestamp(file, 900, 0.65).then(dataUrl => {
+    pendingPhotos[locId] = dataUrl;
+    const box = document.getElementById('photobox-' + locId);
+    box.innerHTML = '<img src="' + dataUrl + '">' +
+      '<div style="margin-top:8px;"><label class="photo-btn" for="file-' + locId + '">Ganti Foto</label></div>' +
+      '<input type="file" id="file-' + locId + '" accept="image/*" capture="environment" onchange="onPhotoSelected(\'' + locId + '\', this)">';
+    document.getElementById('submit-' + locId).disabled = false;
+  });
+}
+
+function resizeImageWithTimestamp(file, maxDim, quality) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > h && w > maxDim) { h = h * (maxDim / w); w = maxDim; }
+      else if (h > maxDim) { w = w * (maxDim / h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      // bubuhkan tanggal & waktu pengambilan foto
+      const now = new Date();
+      const text = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) +
+        '  ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const fontSize = Math.max(14, Math.round(w * 0.032));
+      ctx.font = fontSize + 'px -apple-system, Arial, sans-serif';
+      const paddingX = fontSize * 0.6, paddingY = fontSize * 0.5;
+      const textWidth = ctx.measureText(text).width;
+      const boxW = textWidth + paddingX * 2;
+      const boxH = fontSize + paddingY * 2;
+      const boxX = w - boxW - 10;
+      const boxY = h - boxH - 10;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, boxX + paddingX, boxY + boxH / 2 + 1);
+
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function submitLocation(locId) {
+  const name = document.getElementById('guardName').value.trim();
+  const msgEl = document.getElementById('msg-' + locId);
+  if (!name) {
+    msgEl.innerHTML = '<div class="msg error">Isi nama petugas terlebih dahulu.</div>';
+    return;
+  }
+  const photo = pendingPhotos[locId];
+  if (!photo) {
+    msgEl.innerHTML = '<div class="msg error">Ambil foto terlebih dahulu.</div>';
+    return;
+  }
+  const note = document.getElementById('note-' + locId).value.trim();
+  const locations = loadLocations();
+  const loc = locations.find(l => l.id === locId);
+  const reports = loadReports();
+  reports.unshift({
+    id: 'rep_' + Date.now(),
+    locationId: locId,
+    locationName: loc ? loc.name : '-',
+    guard: name,
+    note: note,
+    photo: photo,
+    timestamp: Date.now(),
+    dayKey: todayKey()
+  });
+  saveReports(reports);
+  delete pendingPhotos[locId];
+  renderChecklist();
+}
+
+// ---------- admin: reports ----------
+function renderFilters() {
+  const reports = loadReports();
+  const locations = loadLocations();
+  const locNames = Array.from(new Set(locations.map(l => l.name)));
+  const guardNames = Array.from(new Set(reports.map(r => r.guard)));
+  const fl = document.getElementById('filterLocation');
+  const fg = document.getElementById('filterGuard');
+  fl.innerHTML = '<option value="">Semua Lokasi</option>' + locNames.map(n => '<option>' + escapeHtml(n) + '</option>').join('');
+  fg.innerHTML = '<option value="">Semua Petugas</option>' + guardNames.map(n => '<option>' + escapeHtml(n) + '</option>').join('');
+}
+function renderReports() {
+  const reports = loadReports().sort((a,b) => b.timestamp - a.timestamp);
+  const fLoc = document.getElementById('filterLocation').value;
+  const fGuard = document.getElementById('filterGuard').value;
+  const filtered = reports.filter(r =>
+    (!fLoc || r.locationName === fLoc) && (!fGuard || r.guard === fGuard)
+  );
+  const el = document.getElementById('reportList');
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty">Belum ada laporan.</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(r => {
+    const d = new Date(r.timestamp);
+    const dateStr = d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    return '<div class="report">' +
+      '<img src="' + r.photo + '" onclick="openImage(\'' + r.photo + '\')">' +
+      '<div>' +
+        '<div class="loc">📍 ' + escapeHtml(r.locationName) + '</div>' +
+        '<div class="meta">👤 ' + escapeHtml(r.guard) + ' &middot; ' + dateStr + '</div>' +
+        '<div class="note">' + (r.note ? escapeHtml(r.note) : '<span style="color:var(--muted)">Tidak ada catatan</span>') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function openImage(src) {
+  document.getElementById('overlayImg').src = src;
+  document.getElementById('overlay').classList.add('open');
+}
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ---------- init ----------
+try {
+  const savedName = localStorage.getItem(LS_GUARD_NAME);
+  if (savedName) document.getElementById('guardName').value = savedName;
+} catch (e) {}
+renderChecklist();
+</script>
+
+
+
+</body></html>
